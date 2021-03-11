@@ -19,6 +19,7 @@ bool STATE = false;
 
 void open() 
 {
+  Serial.println("Open shutter");
   digitalWrite(LED_PIN_BOARD, HIGH);
   delay(5000);
   digitalWrite(LED_PIN_BOARD, LOW);
@@ -26,6 +27,7 @@ void open()
 }
 
 void close() {
+  Serial.println("Close shutter");
   digitalWrite(LED_PIN_BOARD, HIGH);
   delay(5000);
   digitalWrite(LED_PIN_BOARD, LOW);
@@ -43,10 +45,10 @@ void callback(char *topic, byte *payload, unsigned int length)
 {
   String message = payloadToString(payload, length);
   int value = message.toInt();
-  if(value >= 25 && ! STATE) {
-    open();
-  }else if(value < 25 && STATE){
+  if (value == 1 && STATE) {
     close();
+  }else if (value == 0 && ! STATE) {
+    open();
   }
   Serial.println(message);
   Serial.println(*topic);
@@ -85,7 +87,7 @@ void reconnect()
       Serial.println("[MQTT] Connected");
 
       Serial.println("[MQTT] Message sent");
-      mqtt.subscribe("light/sensor");
+      mqtt.subscribe("shutter/status");
       Serial.println("[MQTT] Message subscribed");
     }
     else
