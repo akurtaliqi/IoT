@@ -7,13 +7,10 @@ char pass[] = "Reseau-GES";
 int status = WL_IDLE_STATUS;
 
 WiFiClient client;
-IPAddress server(146,59,147,99);  // Jeedom
+IPAddress server(0,0,0,0);  // Jeedom
 
 #define LED_PIN_BOARD D1
 #define SENSOR_PIN_ANAL A0
-
-// char user[] = "****";
-// char pass[] = "****";
 
 bool STATE = false;
 
@@ -75,7 +72,7 @@ void reconnect()
   while (!mqtt.connected())
   {
     Serial.println("[MQTT] Connecting to MQTT...");
-    if (mqtt.connect("TempCapteur", "jeedom", "jeedom"))
+    if (mqtt.connect("TempCapteur", "****", "****"))
     {
       Serial.println("[MQTT] Connected");
 
