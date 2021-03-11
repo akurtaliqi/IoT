@@ -29,7 +29,7 @@ String payloadToString(byte *payload, unsigned int length)
 
 String getLightLevel () 
 {
-  delay(5000);
+  // delay(5000);
   int16_t lightLevel = (1023-analogRead(SENSOR_PIN_ANAL))/10.23;
   return String(lightLevel);
 }
@@ -94,7 +94,7 @@ void reconnect()
   }
 }
 
-void open() {
+/*void open() {
   Serial.println("Open shutter");
   digitalWrite(LED_PIN_BOARD, HIGH);
   delay(5000);
@@ -110,7 +110,7 @@ void close() {
   digitalWrite(LED_PIN_BOARD, LOW);
   STATE = false;
   mqtt.publish("shutter/status", String(STATE).c_str());
-}
+}*/
 
 void loop() 
 {
@@ -118,9 +118,10 @@ void loop()
   {
     reconnect();
   }
-  mqtt.loop();
   mqtt.publish("light/sensor", getLightLevel().c_str());
-  // Serial.println(getLightLevel().c_str());
+  mqtt.loop();
+  
+  Serial.println(getLightLevel().c_str());
  
   
 }
