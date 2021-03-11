@@ -1,19 +1,19 @@
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 
-char ssid[] = "****";
-char pass[] = "****";
+char ssid[] = "ESGI";
+char pass[] = "Reseau-GES";
 
 int status = WL_IDLE_STATUS;
 
 WiFiClient client;
-IPAddress server(0,0,0,0);  // Jeedom
+IPAddress server(146,59,147,99);  // Jeedom
 
 #define LED_PIN_BOARD D1
 #define SENSOR_PIN_ANAL A0
 
-char user[] = "****";
-char pass[] = "****";
+// char user[] = "****";
+// char pass[] = "****";
 
 bool STATE = false;
 
@@ -27,17 +27,24 @@ String payloadToString(byte *payload, unsigned int length)
   return String(buffer);
 }
 
+String getLightLevel () 
+{
+  delay(5000);
+  int16_t lightLevel = (1023-analogRead(SENSOR_PIN_ANAL))/10.23;
+  return String(lightLevel);
+}
+
+
 void callback(char *topic, byte *payload, unsigned int length)
 {
   String message = payloadToString(payload, length);
   int value = message.toInt();
-  if(value >= 25 && ! STATE) {
-    open();
-  }else if(value < 25 && STATE){
-    close();
+  if (message == "on") {
+    Serial.println(topic);
+    digitalWrite(LED_PIN_BOARD, HIGH);
+  }else if (message == "off") {
+    digitalWrite(LED_PIN_BOARD, LOW);
   }
-  Serial.println(message);
-  Serial.println(*topic);
 }
 
 void setup () 
@@ -68,28 +75,23 @@ void reconnect()
   while (!mqtt.connected())
   {
     Serial.println("[MQTT] Connecting to MQTT...");
-    if (mqtt.connect("TempCapteur", user, pass))
+    if (mqtt.connect("TempCapteur", "jeedom", "jeedom"))
     {
       Serial.println("[MQTT] Connected");
 
       Serial.println("[MQTT] Message sent");
-      mqtt.subscribe("light/sensor");
+      // mqtt.subscribe("light/sensor");
+      mqtt.subscribe("shutter/action");
+
       Serial.println("[MQTT] Message subscribed");
     }
     else
     {
       Serial.print("[ERROR] MQTT Connect: ");
-      Serial.println(mqtt.state());
+      // Serial.println(mqtt.state());
       delay(60 * 1000);
     }
   }
-}
-
-String getLightLevel () 
-{
-  delay(5000);
-  int16_t lightLevel = (1023-analogRead(SENSOR_PIN_ANAL))/10.23;
-  return String(lightLevel);
 }
 
 void open() {
@@ -117,7 +119,8 @@ void loop()
     reconnect();
   }
   mqtt.loop();
-  // Serial.println(getLightLevel().c_str());
   mqtt.publish("light/sensor", getLightLevel().c_str());
+  // Serial.println(getLightLevel().c_str());
+ 
   
 }
