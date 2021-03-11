@@ -17,20 +17,8 @@ char pass[] = "****";
 
 bool STATE = false;
 
-void open() 
-{
-  digitalWrite(LED_PIN_BOARD, HIGH);
-  delay(5000);
-  digitalWrite(LED_PIN_BOARD, LOW);
-  STATE = true;
-}
-
-void close() {
-  digitalWrite(LED_PIN_BOARD, HIGH);
-  delay(5000);
-  digitalWrite(LED_PIN_BOARD, LOW);
-  STATE = false;
-}
+void open();
+void close();
 
 String payloadToString(byte *payload, unsigned int length)
 {
@@ -102,6 +90,24 @@ String getLightLevel ()
   delay(5000);
   int16_t lightLevel = (1023-analogRead(SENSOR_PIN_ANAL))/10.23;
   return String(lightLevel);
+}
+
+void open() {
+  Serial.println("Open shutter");
+  digitalWrite(LED_PIN_BOARD, HIGH);
+  delay(5000);
+  digitalWrite(LED_PIN_BOARD, LOW);
+  STATE = true;
+  mqtt.publish("shutter/status", String(STATE).c_str());
+}
+
+void close() {
+  Serial.println("Close shutter");
+  digitalWrite(LED_PIN_BOARD, HIGH);
+  delay(5000);
+  digitalWrite(LED_PIN_BOARD, LOW);
+  STATE = false;
+  mqtt.publish("shutter/status", String(STATE).c_str());
 }
 
 void loop() 
